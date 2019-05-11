@@ -15,6 +15,13 @@ int main(int argc, char** argv) {
     ofstream output;
     input.open(INFILE, ios_base::binary);
     output.open(OUTFILE, ios_base::app);
+    // If file is empty, don't write anything.
+    input.seekg(0, ios::end);
+    if (input.tellg() == 0) {
+        return EXIT_SUCCESS;
+    }
+    input.clear();
+    input.seekg(0);
     // Initiate all vector to 0.
     vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
     // Proceed to read bytes, assuming valid file.
