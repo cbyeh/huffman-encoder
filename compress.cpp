@@ -18,6 +18,11 @@ int main(int argc, char** argv) {
     output.open(OUTFILE, ios_base::app);
     unsigned char nextChar;
     int nextByte;
+    // If file is empty, don't write anything.
+    input.seekg(0, ios::end);
+    if (input.tellg() == 0) {
+        return EXIT_SUCCESS;
+    }
     // Initiate all vector to 0.
     vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
     // Proceed to read bytes.
@@ -25,11 +30,6 @@ int main(int argc, char** argv) {
         ascii_count[nextByte]++;
 //        cout << nextByte << endl; // 67
 //        cout << nextChar << endl; // C
-    }
-    // If file is empty, don't write anything.
-    input.seekg(0, ios::end);
-    if (input.tellg() == 0) {
-        return EXIT_SUCCESS;
     }
     input.clear();
     input.seekg(0);
