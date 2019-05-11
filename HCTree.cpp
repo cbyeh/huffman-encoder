@@ -25,12 +25,17 @@ void HCTree::build(const vector<int>& freqs) {
     HCNode* n0;
     HCNode* n1;
     // Begin building the Huffman trie.
+    if (q.size() == 1) { // File contains one character.
+        root = new HCNode(1, q.top()->symbol);
+        codes[root->symbol] = "0";
+    }
     while (q.size() > 1) {
         n0 = q.top();
         q.pop();
         n1 = q.top();
         q.pop();
         root = new HCNode(n0->count + n1->count, '\0');
+        // Set pointers.
         if (n0->c0 == nullptr && n0->c1 == nullptr) {
             leaves[n0->symbol] = n0;
         }
@@ -38,7 +43,9 @@ void HCTree::build(const vector<int>& freqs) {
             leaves[n1->symbol] = n1;
         }
         root->c0 = n0;
+        n0->p = root;
         root->c1 = n1;
+        n1->p = root;
         q.push(root);
     }
     // Get the codes for our leaves.
@@ -46,17 +53,20 @@ void HCTree::build(const vector<int>& freqs) {
     HCNode* prev;
     for (HCNode* leaf : leaves) {
         string code;
-        curr = leaf;
-        while (curr->p != nullptr) {
-            prev = curr;
-            curr = curr->p;
-            if (curr->c0 == prev) {
-                code.insert(0, "0"); // Prepend.
-            } else {
-                code.insert(0, "1");
+        if (leaf != nullptr) {
+            curr = leaf;
+            while (curr->p != nullptr) {
+                prev = curr;
+                curr = curr->p;
+                if (curr->c0 == prev) {
+                    code.insert(0, "0"); // Prepend.
+                } else {
+                    code.insert(0, "1"); // Prepend.
+                }
             }
+            codes[leaf->symbol] = code;
+//            cout << leaf->count << " : " << codes.at(leaf->symbol) << endl;
         }
-        codes[leaf->symbol] = code;
     }
 }
 
@@ -77,7 +87,16 @@ void HCTree::build(const vector<int>& freqs) {
  *  BE USED IN THE FINAL SUBMISSION.
  */
 void HCTree::encode(byte symbol, ofstream& out) const {
-    out << codes[symbol];
+    out << codes.at(symbol);
+}
+
+/**
+ * Helper method to get the bits that symbol represents in the trie.
+ * @param symbol
+ * @return
+ */
+string HCTree::getCode(byte symbol) {
+    return codes.at(symbol);
 }
 
 
@@ -96,7 +115,28 @@ void HCTree::encode(byte symbol, ofstream& out) const {
  *  IN THE FINAL SUBMISSION.
  */
 int HCTree::decode(ifstream& in) const {
-
+    unsigned char nextByte;
+    if (root == nullptr) { // Empty file case.
+        return 0;
+    }
+    if (root->c0 == nullptr && root->c1 == nullptr) { // One character case.
+        in.get();
+        in.get();
+        return root->symbol;
+    }
+    // Else we have a regular file.
+    HCNode* curr = root;
+    while (curr->c0 != nullptr && curr->c1 != nullptr) { // Not a leaf:
+        nextByte = (unsigned char) in.get();
+        if (nextByte == '0') {
+            curr = curr->c0;
+        } else if (nextByte == '1'){
+            curr = curr->c1;
+        } else {
+            return 0;
+        }
+    }
+    return curr->symbol;
 }
 
 /*int main() {
@@ -108,5 +148,15 @@ int HCTree::decode(ifstream& in) const {
 
 
 HCTree::~HCTree() {
+    deleteAll(root);
+}
 
+void HCTree::deleteAll(HCNode *start) {
+    HCNode* curr = start;
+    if (curr == nullptr) {
+        return;
+    }
+    deleteAll(curr->c0);
+    deleteAll(curr->c1);
+    delete curr;
 }

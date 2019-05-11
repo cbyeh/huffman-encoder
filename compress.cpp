@@ -3,9 +3,9 @@
 int main(int argc, char** argv) {
     // Check for appropriate arguments. Does not account for invalid files.
     const int NUM_ARGS = 3;
-    const int TABLE_SIZE = 256;
     if (argc != NUM_ARGS) {
-        cout << "This program requires 2 arguments!" << endl;
+        cout << "Invalid number of arguments" << endl <<
+        "Usage: ./compress <infile filename> <outfile filename>." << endl;
         return EXIT_FAILURE;
     }
     // Error "checking" done. Proceed with program.
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     unsigned char nextChar;
     int nextByte;
     // Initiate all vector to 0.
-    vector<int> ascii_count(TABLE_SIZE, 0);
+    vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
     // Proceed to read bytes.
     while ((nextByte = input.get()) != EOF) {
         nextChar = (unsigned char) nextByte;
@@ -32,12 +32,15 @@ int main(int argc, char** argv) {
     }
     // Encode our tree.
     HCTree* ht = new HCTree();
-//    ht->build(ascii_count);
-//    // Write to our header the encoded file.
-//    input.clear();
+    ht->build(ascii_count); // TODO: if no tree, close
+    // Write to our header the encoded file.
+    input.clear();
+    input.seekg(0);
     while ((nextByte = input.get()) != EOF) {
         nextChar = (unsigned char) nextByte;
-        //ht->encode(nextChar, output);
+        ht->encode(nextChar, output);
+//         output << ht->getCode(nextChar);
     }
-    //delete ht;
+    delete ht;
+    return EXIT_SUCCESS;
 }

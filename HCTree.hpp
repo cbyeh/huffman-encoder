@@ -4,7 +4,10 @@
 #include <queue>
 #include <vector>
 #include <fstream>
+#include <unordered_map>
+#include <unordered_set>
 #include "HCNode.hpp"
+
 //#include "BitInputStream.hpp"
 //#include "BitOutputStream.hpp"
 
@@ -30,12 +33,15 @@ class HCTree {
 private:
     HCNode* root;
     vector<HCNode*> leaves;
-    vector<string> codes;
+    unordered_map<byte, string> codes;
+
+    void deleteAll(HCNode* start);
 
 public:
+    const static int TABLE_SIZE = 256;
+
     explicit HCTree() : root(nullptr) {
         leaves = vector<HCNode*>(256, (HCNode*) nullptr);
-        codes = vector<string>(256);
     }
 
     ~HCTree();
@@ -63,6 +69,13 @@ public:
      *  BE USED IN THE FINAL SUBMISSION.
      */
     void encode(byte symbol, ofstream& out) const;
+
+    /**
+     * Helper method to get the bits that symbol represents in the trie.
+     * @param symbol
+     * @return
+     */
+    string getCode(byte symbol);
 
 
     /** Return symbol coded in the next sequence of bits from the stream.

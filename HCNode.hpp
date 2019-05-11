@@ -43,8 +43,8 @@ public:
 /** For printing an HCNode to an ostream
  *  Possibly useful for debugging.
  */
-ostream& operator<<(ostream&, const HCNode&) __attribute__((weak)); // shut the linker up
-ostream& operator<<(ostream& stm, const HCNode& n) {
+// ostream& operator<<(ostream&, const HCNode&) __attribute__((weak)); // shut the linker up
+inline ostream& operator<<(ostream& stm, const HCNode& n) {
     stm << "[" << n.count << "," << (int) (n.symbol) << "]";
     return stm;
 }
