@@ -23,6 +23,8 @@ int main(int argc, char** argv) {
     if (input.tellg() == 0) {
         return EXIT_SUCCESS;
     }
+    input.clear();
+    input.seekg(0);
     // Initiate all vector to 0.
     vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
     // Proceed to read bytes.
@@ -31,8 +33,6 @@ int main(int argc, char** argv) {
 //        cout << nextByte << endl; // 67
 //        cout << nextChar << endl; // C
     }
-    input.clear();
-    input.seekg(0);
     // Write to our header the frequencies.
     for (int count : ascii_count) {
         output << count << endl;
