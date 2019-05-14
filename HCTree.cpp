@@ -120,9 +120,12 @@ int HCTree::decode(ifstream& in) const {
         return 0;
     }
     if (root->c0 == nullptr && root->c1 == nullptr) { // One character case.
-        in.get();
-        in.get();
-        return root->symbol;
+        nextByte = (unsigned char) in.get();
+        if (nextByte == '0') {
+            return root->symbol;
+        } else {
+            return 0;
+        }
     }
     // Else we have a regular file.
     HCNode* curr = root;
