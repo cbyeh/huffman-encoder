@@ -27,27 +27,34 @@ int main(int argc, char** argv) {
     input.seekg(0);
     // Initiate all vector to 0.
     vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
-    // Proceed to read bytes.
+    unsigned int numCharacters = 0;
+    unsigned int numUniqueChars = 0;
+    // Proceed to read bytes, and count number of characters.
     while ((nextByte = input.get()) != EOF) {
         ascii_count[nextByte]++;
-//        cout << nextByte << endl; // 67
-//        cout << nextChar << endl; // C
+        numCharacters++;
     }
-    // Write to our header the frequencies.
+    // Get our number of unique characters */
     for (int count : ascii_count) {
-        output << count << endl;
+        if (count > 0) {
+            numUniqueChars++;
+        }
     }
     // Encode our tree.
+    BitOutputStream bitOut = BitOutputStream(output);
     HCTree* ht = new HCTree();
-    ht->build(ascii_count); // TODO: if no tree, close
-    // Write to our header the encoded file.
+    ht->build(ascii_count);
+    // Write our header: count and pre-order traversal of tree.
+    ht->writeHeader(bitOut, numCharacters, numUniqueChars);
+    // Write our encoding.
     input.clear();
     input.seekg(0);
     while ((nextByte = input.get()) != EOF) {
         nextChar = (unsigned char) nextByte;
-        ht->encode(nextChar, output);
-//         output << ht->getCode(nextChar);
+        ht->encode(nextChar, bitOut);
     }
+    // Padding for last.
+    ht->pad(bitOut);
     delete ht;
     return EXIT_SUCCESS;
 }

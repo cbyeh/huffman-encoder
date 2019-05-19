@@ -15,10 +15,11 @@ class HCNode {
 public:
     int count;
     byte symbol; // byte in the file we're keeping track of
-    HCNode* c0;  // pointer to '0' child
-    HCNode* c1;  // pointer to '1' child
-    HCNode* p;   // pointer to parent
+    HCNode* c0; // pointer to '0' child
+    HCNode* c1; // pointer to '1' child
+    HCNode* p; // pointer to parent
 
+    /** Constructor */
     HCNode(int count,
       byte symbol,
       HCNode* c0 = nullptr,

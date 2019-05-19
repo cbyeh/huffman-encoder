@@ -22,23 +22,20 @@ int main(int argc, char** argv) {
     }
     input.clear();
     input.seekg(0);
-    // Initiate all vector to 0.
-    vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
-    // Proceed to read bytes, assuming valid file.
-    int firstVals = 0;
-    string line = "";
-    while (firstVals < HCTree::TABLE_SIZE) {
-        getline(input, line);
-        int count = stoi(line);
-        ascii_count[firstVals] = count;
-        firstVals++;
-    }
-    // Build tree and decode the encoded string.
+    // Get the number of characters for out output.
+    BitInputStream bitIn = BitInputStream(input);
+    unsigned int numCharacters = bitIn.readInt();
+    cout << numCharacters << endl;
+    unsigned int numUniqueChars = bitIn.readInt();
+    cout << numUniqueChars << endl;
+    // Build our tree from encoding.
     HCTree* ht = new HCTree();
-    ht->build(ascii_count); // TODO: if no tree, close
+    ht->buildFromEncoding(bitIn, numUniqueChars);
+    // Output to our file. Deconstruct and return success.
     unsigned char nextByte;
-    while (input.tellg() != EOF) {
-        nextByte = (unsigned char) ht->decode(input);
+    for (int i = 0; i < numCharacters; i++) {
+//    while (input.tellg() != EOF) {
+        nextByte = (unsigned char) ht->decode(bitIn);
         if (nextByte != 0) { // For extra character at end.
             output << nextByte;
         } else {
