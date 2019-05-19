@@ -1,11 +1,20 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Header file representing a BitInputStream.
+ * It is instantiated with a node representing the empty string.
+ * @buf One byte buffer of bits.
+ * @nbits How many bits have been read from buf.
+ * @in Reference to the input stream to use.
+ */
 #include "HCNode.hpp"
 #include <climits>
 
 class BitInputStream {
 private:
-    byte buf; // One byte buffer of bits.
-    int nbits; // How many bits have been read from buf.
-    istream& in; // Reference to the input stream to use.
+    byte buf;
+    int nbits;
+    istream& in;
 
 public:
     /** Constructor, clear buffer and initialize bit index */
@@ -20,9 +29,14 @@ public:
      */
     int readBit();
 
-    /** Read the amount of characters from our bit buffer. */
+    /** Read the amount of characters or unique characters
+     * from our bit buffer.
+     * @return the int given (32) bits
+     */
     unsigned int readInt();
 
-    /** Read the next byte from the bit buffer. */
+    /** Read the next byte from the bit buffer.
+     * @return the character given (8) bits.
+     */
     byte readByte();
 };

@@ -1,3 +1,9 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Implementation of a BitOutputStream.
+ * Implements methods for reading individual bits, bytes, or ints.
+ */
 #include "BitOutputStream.hpp"
 
 /** Send the buffer to the output stream, and clear it */
@@ -11,11 +17,13 @@ void BitOutputStream::flush() {
 /** Write the least significant bit of the argument to
  * the bit buffer, and increment the bit buffer index.
  * But flush the buffer first, if it is full.
+ * @param bit 1 or 0.
  */
 void BitOutputStream::writeBit(unsigned int bit) {
     // Flush the buffer if full.
     if (nbits == CHAR_BIT) {
         flush();
+        nbytes++;
     }
     // Write the least significant bit of i into the buffer at the current index.
     buf |= bit << nbits;
@@ -23,7 +31,9 @@ void BitOutputStream::writeBit(unsigned int bit) {
     nbits++;
 }
 
-/** Write a (4) byte int in bits */
+/** Write a (4) byte int in bits
+ * @param num int to write.
+ */
 void BitOutputStream::writeInt(unsigned int num) {
     unsigned int bit;
     for (int i = 0; i < sizeof(int) * CHAR_BIT; i++) {
@@ -32,7 +42,9 @@ void BitOutputStream::writeInt(unsigned int num) {
     }
 }
 
-/** Write a (8) bit symbol in bits */
+/** Write a (8) bit symbol in bits
+ * @param symbol character or ascii value to write.
+ */
 void BitOutputStream::writeByte(byte symbol) {
     unsigned int bit;
     for (int i = 0; i < CHAR_BIT; i++) {
@@ -51,4 +63,12 @@ void BitOutputStream::pad() {
         nbits++;
     }
     flush();
+    nbytes++;
+}
+
+/** Get our bytes written.
+ * @return number of bytes written.
+ */
+int BitOutputStream::getBytes() {
+    return nbytes;;
 }

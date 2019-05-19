@@ -1,17 +1,18 @@
 /**
  * Christopher Yeh
  * cyeh@ucsd.edu
- * Implementation of a DictionaryTrie.
- * It is instantiated with a node representing the empty string.
+ * Implementation of a HCTree.
+ * Methods for numerous encode and decodes for a naive approach, also
+ * space efficient implementations, as well as building the tree.
  */
-
 #include "HCTree.hpp"
 
 /** Use the Huffman algorithm to build a Huffman coding trie.
- *  PRECONDITION: freqs is a vector of ints, such that freqs[i] is
- *  the frequency of occurrence of byte i in the message.
- *  POSTCONDITION: root points to the root of the trie,
- *  and leaves[i] points to the leaf node containing byte i.
+ * PRECONDITION: freqs is a vector of ints, such that freqs[i] is
+ * the frequency of occurrence of byte i in the message.
+ * POSTCONDITION: root points to the root of the trie,
+ * and leaves[i] points to the leaf node containing byte i.
+ * @param freqs vector of ascii values and their frequency.
  */
 void HCTree::build(const vector<int>& freqs) {
     // Create our priority queue as a min-heap and add our freqs to it.
@@ -27,7 +28,6 @@ void HCTree::build(const vector<int>& freqs) {
     // Begin building the Huffman trie.
     if (q.size() == 1) { // File contains one character.
         root = new HCNode(1, q.top()->symbol);
-        codes[root->symbol] = "1";
     }
     while (q.size() > 1) {
         n0 = q.top();
@@ -71,9 +71,9 @@ void HCTree::build(const vector<int>& freqs) {
 }
 
 /** Use our encoding to build a Huffman coding trie.
- *  HCNode count will now represent whether node is a leaf or not,
- *  1 being a leaf. Symbol will be null character unless a leaf.
- *  PRECONDITION: a file was properly encoded.
+ * PRECONDITION: a file was properly encoded.
+ * @param in our input stream for bits.
+ * @param numUniqueChars how many different ascii values there are.
  */
 void HCTree::buildFromEncoding(BitInputStream& in, int numUniqueChars) {
     int charsEncountered = 0;
@@ -113,18 +113,29 @@ void HCTree::buildFromEncoding(BitInputStream& in, int numUniqueChars) {
 }
 
 /** Encode this tree with pre-order traversal.
- *  PRECONDITION: build() has been called, to create the coding
- *  tree, and initialize root pointer and leaves vector.
+ * PRECONDITION: build() has been called, to create the coding
+ * tree, and initialize root pointer and leaves vector.
+ * @param out our input stream for bits.
+ * @param numCharacters how many total characters there are.
+ * @param numUniqueChars how many different ascii values there are.
  */
 void HCTree::writeHeader(BitOutputStream& out,
-        unsigned int numCharacters, unsigned int numUniqueCharacters) const
+        unsigned int numCharacters, unsigned int numUniqueChars) const
 {
     out.writeInt(numCharacters);
-    out.writeInt(numUniqueCharacters);
-    writeHeaderHelper(out, root);
+    out.writeInt(numUniqueChars);
+    // One character case.
+    if (numUniqueChars == 1) {
+        out.writeByte(root->symbol);
+    } else {
+        writeHeaderHelper(out, root);
+    }
 }
 
-/** Helper for writeHeader */
+/** Helper for writeHeader.
+ * @param out our input stream for bits.
+ * @param parent root to be handed for recursion.
+ */
 void HCTree::writeHeaderHelper(BitOutputStream& out, HCNode* parent) const {
     if (parent == nullptr) {
         return;
@@ -141,10 +152,23 @@ void HCTree::writeHeaderHelper(BitOutputStream& out, HCNode* parent) const {
     writeHeaderHelper(out, parent->c1);
 }
 
-/** Write to the given BitOutputStream
+/** Write to the given ofstream.
+ * the sequence of bits (as ASCII) coding the given symbol.
+ * PRECONDITION: build() has been called, to create the coding
+ * tree, and initialize root pointer and leaves vector.
+ * @param symbol 8 bits to be encoded.
+ * @param out our output stream.
+ */
+void HCTree::encode(byte symbol, ofstream& out) const {
+    out << codes.at(symbol);
+}
+
+/** Write to the given BitOutputStream.
  *  the sequence of bits coding the given symbol.
  *  PRECONDITION: build() has been called, to create the coding
  *  tree, and initialize root pointer and leaves vector.
+ *  @param symbol 8 bits to be encoded.
+ *  @param out our output stream.
  */
 void HCTree::encode(byte symbol, BitOutputStream& out) const {
     string code = codes.at(symbol);
@@ -153,37 +177,19 @@ void HCTree::encode(byte symbol, BitOutputStream& out) const {
     }
 }
 
-/** Make sure we get the last byte in */
+/** Make sure we get the last byte in.
+ * @param out our input stream for bits.
+ */
 void HCTree::pad(BitOutputStream& out) const {
     out.pad();
-}
-
-/** Write to the given ofstream
- *  the sequence of bits (as ASCII) coding the given symbol.
- *  PRECONDITION: build() has been called, to create the coding
- *  tree, and initialize root pointer and leaves vector.
- *  THIS METHOD IS USEFUL FOR THE CHECKPOINT BUT SHOULD NOT
- *  BE USED IN THE FINAL SUBMISSION.
- */
-void HCTree::encode(byte symbol, ofstream& out) const {
-    out << codes.at(symbol);
-}
-
-/**
- * Helper method to get the bits that symbol represents in the trie.
- * @param symbol
- * @return
- */
-string HCTree::getCode(byte symbol) {
-    return codes.at(symbol);
 }
 
 /** Return the symbol coded in the next sequence of bits (represented as
  *  ASCII text) from the ifstream.
  *  PRECONDITION: build() has been called, to create the coding
  *  tree, and initialize root pointer and leaves vector.
- *  THIS METHOD IS USEFUL FOR THE CHECKPOINT BUT SHOULD NOT BE USED
- *  IN THE FINAL SUBMISSION.
+ *  @param in our input stream.
+ *  @return symbol of the 8 bits read.
  */
 int HCTree::decode(ifstream& in) const {
     unsigned char nextByte;
@@ -216,15 +222,13 @@ int HCTree::decode(ifstream& in) const {
 /** Return symbol coded in the next sequence of bits from the stream.
  *  PRECONDITION: build() has been called, to create the coding
  *  tree, and initialize root pointer and leaves vector.
+ *  @param in our input stream for bits.
+ *  @return symbol of the 8 bits read.
  */
 int HCTree::decode(BitInputStream& in) const {
     int nextBit;
     if (root == nullptr) { // Empty file case.
         return 0;
-    }
-    if (root->c0 == nullptr && root->c1 == nullptr) { // One character case.
-        in.readBit();
-        return root->symbol;
     }
     // Else we have an ordinary file.
     HCNode* curr = root; // TODO: Use leaves instead.
@@ -241,10 +245,12 @@ int HCTree::decode(BitInputStream& in) const {
     return curr->symbol;
 }
 
+/** Destructor */
 HCTree::~HCTree() {
     deleteAll(root);
 }
 
+/** Delete every note from root, post-order */
 void HCTree::deleteAll(HCNode *start) {
     HCNode* curr = start;
     if (curr == nullptr) {

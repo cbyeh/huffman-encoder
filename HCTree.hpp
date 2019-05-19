@@ -1,3 +1,10 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Header file representing a HCTree.
+ * Methods for numerous encode and decodes for a naive approach, also
+ * space efficient implementations, as well as building the tree.
+ */
 #ifndef HCTREE_HPP
 #define HCTREE_HPP
 
@@ -26,8 +33,11 @@ public:
 };
 
 /** A Huffman Code Tree class.
- *  Not very generic:  Use only if alphabet consists
+ *  Not very generic: Use only if alphabet consists
  *  of unsigned chars.
+ *  @root the root of the trie.
+ *  @leaves nodes where we have a symbol represented.
+ *  @codes what the leaf would traverse to from root.
  */
 class HCTree {
 private:
@@ -45,72 +55,80 @@ public:
         leaves = vector<HCNode*>(256, (HCNode*) nullptr);
     }
 
+    /** Destructor */
     ~HCTree();
 
     /** Use the Huffman algorithm to build a Huffman coding trie.
-     *  PRECONDITION: freqs is a vector of ints, such that freqs[i] is
-     *  the frequency of occurrence of byte i in the message.
-     *  POSTCONDITION: root points to the root of the trie,
-     *  and leaves[i] points to the leaf node containing byte i.
+     * PRECONDITION: freqs is a vector of ints, such that freqs[i] is
+     * the frequency of occurrence of byte i in the message.
+     * POSTCONDITION: root points to the root of the trie,
+     * and leaves[i] points to the leaf node containing byte i.
+     * @param freqs vector of ascii values and their frequency.
      */
     void build(const vector<int>& freqs);
 
     /** Use our encoding to build a Huffman coding trie.
-     *  PRECONDITION: a file was properly encoded.
+     * PRECONDITION: a file was properly encoded.
+     * @param in our input stream for bits.
+     * @param numUniqueChars how many different ascii values there are.
      */
     void buildFromEncoding(BitInputStream& in, int numUniqueChars);
 
-    /** Write to the given BitOutputStream
-     *  the sequence of bits coding the given symbol.
-     *  PRECONDITION: build() has been called, to create the coding
-     *  tree, and initialize root pointer and leaves vector.
-     */
-    void encode(byte symbol, BitOutputStream& out) const;
-
     /** Encode this tree with pre-order traversal.
-     *  PRECONDITION: build() has been called, to create the coding
-     *  tree, and initialize root pointer and leaves vector.
+     * PRECONDITION: build() has been called, to create the coding
+     * tree, and initialize root pointer and leaves vector.
+     * @param out our input stream for bits.
+     * @param numCharacters how many total characters there are.
+     * @param numUniqueChars how many different ascii values there are.
      */
-    void writeHeader(BitOutputStream &out, unsigned int numCharacters,
-            unsigned int numUniqueCharacters) const;
+    void writeHeader(BitOutputStream& out, unsigned int numCharacters,
+            unsigned int numUniqueChars) const;
 
-    /** Helper for writeHeader */
+    /** Helper for writeHeader.
+     * @param out our input stream for bits.
+     * @param parent root to be handed for recursion.
+     */
     void writeHeaderHelper(BitOutputStream& out, HCNode* parent) const;
 
-    /** Make sure we get the last byte in */
-    void pad(BitOutputStream& out) const;
-
-    /** Write to the given ofstream
-     *  the sequence of bits (as ASCII) coding the given symbol.
-     *  PRECONDITION: build() has been called, to create the coding
-     *  tree, and initialize root pointer and leaves vector.
-     *  THIS METHOD IS USEFUL FOR THE CHECKPOINT BUT SHOULD NOT
-     *  BE USED IN THE FINAL SUBMISSION.
+    /** Write to the given ofstream.
+     * the sequence of bits (as ASCII) coding the given symbol.
+     * PRECONDITION: build() has been called, to create the coding
+     * tree, and initialize root pointer and leaves vector.
+     * @param symbol 8 bits to be encoded.
+     * @param out our output stream.
      */
     void encode(byte symbol, ofstream& out) const;
 
-    /**
-     * Helper method to get the bits that symbol represents in the trie.
-     * @param symbol
-     * @return
-     */
-    string getCode(byte symbol);
-
-
-    /** Return symbol coded in the next sequence of bits from the stream.
+    /** Write to the given BitOutputStream.
+     *  the sequence of bits coding the given symbol.
      *  PRECONDITION: build() has been called, to create the coding
      *  tree, and initialize root pointer and leaves vector.
+     *  @param symbol 8 bits to be encoded.
+     *  @param out our output stream.
      */
-    int decode(BitInputStream& in) const;
+    void encode(byte symbol, BitOutputStream& out) const;
+
+    /** Make sure we get the last byte in.
+     * @param out our input stream for bits.
+     */
+    void pad(BitOutputStream& out) const;
 
     /** Return the symbol coded in the next sequence of bits (represented as
      *  ASCII text) from the ifstream.
      *  PRECONDITION: build() has been called, to create the coding
      *  tree, and initialize root pointer and leaves vector.
-     *  THIS METHOD IS USEFUL FOR THE CHECKPOINT BUT SHOULD NOT BE USED
-     *  IN THE FINAL SUBMISSION.
+     *  @param in our input stream.
+     *  @return symbol of the 8 bits read.
      */
     int decode(ifstream& in) const;
+
+    /** Return symbol coded in the next sequence of bits from the stream.
+     *  PRECONDITION: build() has been called, to create the coding
+     *  tree, and initialize root pointer and leaves vector.
+     *  @param in our input stream for bits.
+     *  @return symbol of the 8 bits read.
+     */
+    int decode(BitInputStream& in) const;
 
 };
 

@@ -1,5 +1,17 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Main runner to uncompress a file with a huffman trie.
+ * Compile and run with proper arguments.
+ */
 #include "HCTree.hpp"
 
+/**
+ * Decodes our compressed file.
+ * @param argc number of arguments
+ * @param argv two arguments, compressed file name and output file name.
+ * @return failure if wrong number of arguments. Success otherwise.
+ */
 int main(int argc, char** argv) {
 // Check for appropriate arguments. Does not account for invalid files.
     const int NUM_ARGS = 3;
@@ -25,16 +37,21 @@ int main(int argc, char** argv) {
     // Get the number of characters for out output.
     BitInputStream bitIn = BitInputStream(input);
     unsigned int numCharacters = bitIn.readInt();
-    cout << numCharacters << endl;
     unsigned int numUniqueChars = bitIn.readInt();
-    cout << numUniqueChars << endl;
+    unsigned char nextByte;
+    // Single character cases.
+    if (numUniqueChars == 1) {
+        nextByte = (unsigned char) bitIn.readByte();
+        for (int i = 0; i < numCharacters; i++) {
+            output << nextByte;
+        }
+        return EXIT_SUCCESS;
+    }
     // Build our tree from encoding.
     HCTree* ht = new HCTree();
     ht->buildFromEncoding(bitIn, numUniqueChars);
     // Output to our file. Deconstruct and return success.
-    unsigned char nextByte;
     for (int i = 0; i < numCharacters; i++) {
-//    while (input.tellg() != EOF) {
         nextByte = (unsigned char) ht->decode(bitIn);
         if (nextByte != 0) { // For extra character at end.
             output << nextByte;

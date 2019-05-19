@@ -1,3 +1,9 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Implementation of a BitInputStream.
+ * Implements methods for reading individual bits, bytes, or ints.
+ */
 #include "BitInputStream.hpp"
 
 /** Fill the buffer, read one byte from the input stream */
@@ -21,7 +27,10 @@ int BitInputStream::readBit() {
     return nextBit;
 }
 
-/** Read the amount of characters from our bit buffer. */
+/** Read the amount of characters or unique characters
+ * from our bit buffer.
+ * @return the int given (32) bits
+ */
 unsigned int BitInputStream::readInt() {
     unsigned int numCharacters = 0;
     int bit;
@@ -32,7 +41,9 @@ unsigned int BitInputStream::readInt() {
     return numCharacters;
 }
 
-/** Read the next byte from the bit buffer. */
+/** Read the next byte from the bit buffer.
+ * @return the character given (8) bits.
+ */
 byte BitInputStream::readByte() {
     byte character = 0;
     int bit;

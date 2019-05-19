@@ -1,6 +1,18 @@
+/**
+ * Christopher Yeh
+ * cyeh@ucsd.edu
+ * Main runner to compress a file with a huffman trie.
+ * Compile and run with proper arguments.
+ */
 #include <algorithm>
 #include "HCTree.hpp"
 
+/**
+ * Encodes a given file up to 1GB.
+ * @param argc number of arguments
+ * @param argv two arguments, file name to be compressed and output file name.
+ * @return failure if wrong number of arguments. Success otherwise.
+ */
 int main(int argc, char** argv) {
     // Check for appropriate arguments. Does not account for invalid files.
     const int NUM_ARGS = 3;
@@ -46,12 +58,15 @@ int main(int argc, char** argv) {
     ht->build(ascii_count);
     // Write our header: count and pre-order traversal of tree.
     ht->writeHeader(bitOut, numCharacters, numUniqueChars);
+    cout << "Header size is: " << bitOut.getBytes() << " bytes" << endl;
     // Write our encoding.
-    input.clear();
-    input.seekg(0);
-    while ((nextByte = input.get()) != EOF) {
-        nextChar = (unsigned char) nextByte;
-        ht->encode(nextChar, bitOut);
+    if (numUniqueChars > 1) {
+        input.clear();
+        input.seekg(0);
+        while ((nextByte = input.get()) != EOF) {
+            nextChar = (unsigned char) nextByte;
+            ht->encode(nextChar, bitOut);
+        }
     }
     // Padding for last.
     ht->pad(bitOut);
