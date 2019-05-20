@@ -241,10 +241,8 @@ int HCTree::decode(BitInputStream& in) const {
         nextBit = in.readBit();
         if (nextBit == 0) {
             curr = curr->c0;
-        } else if (nextBit == 1){
-            curr = curr->c1;
         } else {
-            return 0;
+            curr = curr->c1;
         }
     }
     return curr->symbol;
