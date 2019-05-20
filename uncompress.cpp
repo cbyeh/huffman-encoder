@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     ifstream input;
     ofstream output;
     input.open(INFILE, ios_base::binary);
-    output.open(OUTFILE, ios_base::app);
+    output.open(OUTFILE, ios_base::trunc);
     // If file is empty, don't write anything.
     input.seekg(0, ios::end);
     if (input.tellg() == 0) {
