@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     // Get the number of characters for out output.
     BitInputStream bitIn = BitInputStream(input);
     unsigned int numCharacters = bitIn.readInt();
-    unsigned int numUniqueChars = bitIn.readInt();
+    unsigned int numUniqueChars = bitIn.readBit();
     unsigned char nextByte;
     // Single character cases.
     if (numUniqueChars == 1) {
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     }
     // Build our tree from encoding.
     HCTree* ht = new HCTree();
-    ht->buildFromEncoding(bitIn, numUniqueChars);
+    ht->buildFromEncoding(bitIn);
     // Output to our file. Deconstruct and return success.
     for (int i = 0; i < numCharacters; i++) {
         nextByte = (unsigned char) ht->decode(bitIn);

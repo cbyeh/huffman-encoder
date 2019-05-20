@@ -70,9 +70,8 @@ public:
     /** Use our encoding to build a Huffman coding trie.
      * PRECONDITION: a file was properly encoded.
      * @param in our input stream for bits.
-     * @param numUniqueChars how many different ascii values there are.
      */
-    void buildFromEncoding(BitInputStream& in, int numUniqueChars);
+    void buildFromEncoding(BitInputStream& in);
 
     /** Encode this tree with pre-order traversal.
      * PRECONDITION: build() has been called, to create the coding

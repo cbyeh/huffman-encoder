@@ -73,20 +73,25 @@ void HCTree::build(const vector<int>& freqs) {
 /** Use our encoding to build a Huffman coding trie.
  * PRECONDITION: a file was properly encoded.
  * @param in our input stream for bits.
- * @param numUniqueChars how many different ascii values there are.
  */
-void HCTree::buildFromEncoding(BitInputStream& in, int numUniqueChars) {
+void HCTree::buildFromEncoding(BitInputStream& in) {
     int charsEncountered = 0;
     int bit;
     bit = in.readBit();
     root = new HCNode(bit, '\0');
     HCNode* curr = root;
-    while (charsEncountered < numUniqueChars) {
-        bit = in.readBit();
+    while (true) {
         // Get to a node where we can set its children.
         while (curr->c0 != nullptr && curr->c1 != nullptr) {
             curr = curr->p;
+            if (curr == nullptr) {
+                break;
+            }
         }
+        if (curr == nullptr) {
+            break;
+        }
+        bit = in.readBit();
         // Create new node.
         if (bit == 0) {
             HCNode* newNode = new HCNode(bit, '\0');
@@ -107,7 +112,6 @@ void HCTree::buildFromEncoding(BitInputStream& in, int numUniqueChars) {
             } else {
                 curr->c1 = newNode;
             }
-            charsEncountered++;
         }
     }
 }
@@ -123,11 +127,12 @@ void HCTree::writeHeader(BitOutputStream& out,
         unsigned int numCharacters, unsigned int numUniqueChars) const
 {
     out.writeInt(numCharacters);
-    out.writeInt(numUniqueChars);
     // One character case.
     if (numUniqueChars == 1) {
+        out.writeBit(1);
         out.writeByte(root->symbol);
     } else {
+        out.writeBit(0);
         writeHeaderHelper(out, root);
     }
 }
