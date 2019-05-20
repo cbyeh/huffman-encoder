@@ -42,8 +42,10 @@ public:
      */
     void writeByte(byte symbol);
 
-    /** Make sure we get the last byte in */
-    void pad();
+    /** Make sure we get the last byte in
+     * @return number of bits before padding.
+     */
+    int pad();
 
     /** Get our bytes written.
      * @return number of bytes written.

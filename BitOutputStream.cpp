@@ -53,10 +53,13 @@ void BitOutputStream::writeByte(byte symbol) {
     }
 }
 
-/** Make sure we get the last byte in */
-void BitOutputStream::pad() {
+/** Make sure we get the last byte in
+ * @return number of bits before padding.
+ */
+int BitOutputStream::pad() {
+    int nbitsBeforePadding = nbits;
     if (nbits == 0) {
-        return;
+        return 0;
     }
     while (nbits != CHAR_BIT) {
         buf |= 0 << nbits;
@@ -64,6 +67,7 @@ void BitOutputStream::pad() {
     }
     flush();
     nbytes++;
+    return nbitsBeforePadding;
 }
 
 /** Get our bytes written.
