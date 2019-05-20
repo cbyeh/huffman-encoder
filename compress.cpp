@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     ht->build(ascii_count);
     // Write our header: count and pre-order traversal of tree.
     ht->writeHeader(bitOut, numCharacters, numUniqueChars);
-    cout << "Header size is: " << bitOut.getBytes() << " bytes" << endl;
+//    cout << "Header size is: " << bitOut.getBytes() << " bytes" << endl;
     // Write our encoding.
     if (numUniqueChars > 1) {
         input.clear();
