@@ -157,17 +157,6 @@ void HCTree::writeHeaderHelper(BitOutputStream& out, HCNode* parent) const {
     writeHeaderHelper(out, parent->c1);
 }
 
-/** Write to the given ofstream.
- * the sequence of bits (as ASCII) coding the given symbol.
- * PRECONDITION: build() has been called, to create the coding
- * tree, and initialize root pointer and leaves vector.
- * @param symbol 8 bits to be encoded.
- * @param out our output stream.
- */
-void HCTree::encode(byte symbol, ofstream& out) const {
-    out << codes.at(symbol);
-}
-
 /** Write to the given BitOutputStream.
  *  the sequence of bits coding the given symbol.
  *  PRECONDITION: build() has been called, to create the coding
@@ -187,41 +176,6 @@ void HCTree::encode(byte symbol, BitOutputStream& out) const {
  */
 void HCTree::pad(BitOutputStream& out) const {
     out.pad();
-}
-
-/** Return the symbol coded in the next sequence of bits (represented as
- *  ASCII text) from the ifstream.
- *  PRECONDITION: build() has been called, to create the coding
- *  tree, and initialize root pointer and leaves vector.
- *  @param in our input stream.
- *  @return symbol of the 8 bits read.
- */
-int HCTree::decode(ifstream& in) const {
-    unsigned char nextByte;
-    if (root == nullptr) { // Empty file case.
-        return 0;
-    }
-    if (root->c0 == nullptr && root->c1 == nullptr) { // One character case.
-        nextByte = (unsigned char) in.get();
-        if (nextByte == '1') {
-            return root->symbol;
-        } else {
-            return 0;
-        }
-    }
-    // Else we have a regular file.
-    HCNode* curr = root;
-    while (curr->c0 != nullptr && curr->c1 != nullptr) { // Not a leaf:
-        nextByte = (unsigned char) in.get();
-        if (nextByte == '0') {
-            curr = curr->c0;
-        } else if (nextByte == '1'){
-            curr = curr->c1;
-        } else {
-            return 0;
-        }
-    }
-    return curr->symbol;
 }
 
 /** Return symbol coded in the next sequence of bits from the stream.

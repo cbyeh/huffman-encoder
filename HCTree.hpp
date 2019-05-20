@@ -89,15 +89,6 @@ public:
      */
     void writeHeaderHelper(BitOutputStream& out, HCNode* parent) const;
 
-    /** Write to the given ofstream.
-     * the sequence of bits (as ASCII) coding the given symbol.
-     * PRECONDITION: build() has been called, to create the coding
-     * tree, and initialize root pointer and leaves vector.
-     * @param symbol 8 bits to be encoded.
-     * @param out our output stream.
-     */
-    void encode(byte symbol, ofstream& out) const;
-
     /** Write to the given BitOutputStream.
      *  the sequence of bits coding the given symbol.
      *  PRECONDITION: build() has been called, to create the coding
@@ -111,15 +102,6 @@ public:
      * @param out our input stream for bits.
      */
     void pad(BitOutputStream& out) const;
-
-    /** Return the symbol coded in the next sequence of bits (represented as
-     *  ASCII text) from the ifstream.
-     *  PRECONDITION: build() has been called, to create the coding
-     *  tree, and initialize root pointer and leaves vector.
-     *  @param in our input stream.
-     *  @return symbol of the 8 bits read.
-     */
-    int decode(ifstream& in) const;
 
     /** Return symbol coded in the next sequence of bits from the stream.
      *  PRECONDITION: build() has been called, to create the coding
