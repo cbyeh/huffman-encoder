@@ -53,11 +53,7 @@ int main(int argc, char** argv) {
     // Output to our file. Deconstruct and return success.
     for (int i = 0; i < numCharacters; i++) {
         nextByte = (unsigned char) ht->decode(bitIn);
-        if (nextByte != 0) { // For extra character at end.
-            output << nextByte;
-        } else {
-            break;
-        }
+        output << nextByte;
     }
     delete ht;
     return EXIT_SUCCESS;

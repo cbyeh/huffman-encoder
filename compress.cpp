@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     const int NUM_ARGS = 3;
     if (argc != NUM_ARGS) {
         cout << "Invalid number of arguments" << endl <<
-        "Usage: ./compress <infile filename> <outfile filename>." << endl;
+             "Usage: ./compress <infile filename> <outfile filename>." << endl;
         return EXIT_FAILURE;
     }
     // Error "checking" done. Proceed with program.
